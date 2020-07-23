@@ -118,7 +118,6 @@ public class Menu {
                     if (in.next().equalsIgnoreCase("y")) {
                         Menu.commander("del");
                     }
-                    goMenu = in.next();
                     quit = true;
                     break;
                 default:
@@ -147,7 +146,7 @@ public class Menu {
             javaORdotjava = "java";
             wipe = "cls";
             whichC = "/c";
-            del="del *_j.log";
+            del="del /F /Q *_j.log 2>nul";
         } else {
             cmdORbash = "bash";
             javaORdotjava = "./java";
@@ -230,11 +229,11 @@ public class Menu {
             actionFlags = "";
         } else if (action.equalsIgnoreCase("POLICY")) {
             backup();
-            FileUtils.writeStringToFile(new File("..\\jre\\lib\\security\\java.security"), System.getProperty("line.separator") + "crypto.security=unlimited", true);
+            FileUtils.writeStringToFile(new File("../jre/lib/security/java.security"), System.getProperty("line.separator") + "crypto.policy=unlimited", true);
             actionFlags = "";
         } else if (action.equalsIgnoreCase("CIPHERS")) {
             backup();
-            File file = new File("..\\jre\\lib\\security\\java.security");
+            File file = new File("../jre/lib/security/java.security");
             List<String> lines = FileUtils.readLines(file);
             List<String> updatedLines = lines.stream().filter(s -> !s.contains("jdk.tls.disabledAlgorithms")).collect(Collectors.toList());
             FileUtils.writeLines(file, updatedLines, false);
@@ -246,14 +245,15 @@ public class Menu {
             verb = in.next();
             actionFlags = "";
         } else if (action.equalsIgnoreCase("TWOWAYSSLTEST")) {
+            Scanner in2 = new Scanner(System.in).useDelimiter("\n");
             System.out.println("Enter URL :");
-            URL = in.next();
+            URL = in2.next();
             System.out.println("Enter Verb (GET, POST, etc.) :");
-            verb = in.next();
-            System.out.println("Enter Absolute Keystore Path:");
-            keystore = in.next();
+            verb = in2.next();
+            System.out.println("Enter Absolute Keystore Path (wrapped in double quotes:");
+            keystore = in2.next();
             System.out.println("Enter Keystore Password:");
-            keypass = in.next();
+            keypass = in2.next();
             actionFlags = "-Djavax.net.ssl.keyStore=" + keystore + " " + "-Djavax.net.ssl.keyStorePassword=" + keypass;
         } else if (action.equalsIgnoreCase("NOTSURE")) {
             System.out.println("Do you want to try SNI? (y/n):");
@@ -270,7 +270,7 @@ public class Menu {
             if (in.next().equalsIgnoreCase("y")) {
                 backup();
                 bkp = true;
-                File file = new File("..\\jre\\lib\\security\\java.security");
+                File file = new File("../jre/lib/security/java.security");
                 List<String> lines = FileUtils.readLines(file);
                 List<String> updatedLines = lines.stream().filter(s -> !s.contains("jdk.tls.disabledAlgorithms")).collect(Collectors.toList());
                 FileUtils.writeLines(file, updatedLines, false);
@@ -280,7 +280,7 @@ public class Menu {
                 if (!bkp) {
                     backup();
                 }
-                FileUtils.writeStringToFile(new File("..\\jre\\lib\\security\\java.security"), System.getProperty("line.separator") + "crypto.security=unlimited", true);
+                FileUtils.writeStringToFile(new File("../jre/lib/security/java.security"), System.getProperty("line.separator") + "crypto.security=unlimited", true);
             }
         }
         //build Commands
@@ -324,8 +324,8 @@ public class Menu {
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss");
         formattedDate = myDateObj.format(myFormatObj);
         //System.out.println("After formatting: " + formattedDate);
-        Path source = Paths.get("..\\jre\\lib\\security\\java.security");
-        Path target = Paths.get("..\\jre\\lib\\security\\java.security_" + formattedDate);
+        Path source = Paths.get("../jre/lib/security/java.security");
+        Path target = Paths.get("../jre/lib/security/java.security_" + formattedDate);
         try {
             Files.copy(source, target);
         } catch (IOException e1) {
@@ -334,8 +334,8 @@ public class Menu {
     }
 
     public static void restore() {
-        Path target = Paths.get("..\\jre\\lib\\security\\java.security");
-        Path source = Paths.get("..\\jre\\lib\\security\\java.security_" + formattedDate);
+        Path target = Paths.get("../jre/lib/security/java.security");
+        Path source = Paths.get("../jre/lib/security/java.security_" + formattedDate);
         try {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e1) {
